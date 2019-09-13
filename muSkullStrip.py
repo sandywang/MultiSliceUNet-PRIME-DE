@@ -9,15 +9,20 @@ import argparse
 if __name__=='__main__':
     NoneType=type(None)
     # Argument
-    parser = argparse.ArgumentParser(description='Skull Stripping')
-    parser.add_argument('-in', '--input_t1w', type=str, required=True, help='Input T1w Image for Skull Stripping')
-    parser.add_argument('-out', '--out_dir', type=str, help='Output Dir')
-    parser.add_argument('-suffix', '--mask_suffix', type=str, default="pre_mask", help='Suffix of Mask')
-    parser.add_argument('-model', '--predict_model', type=str, help='Predict Model')
-    parser.add_argument('-slice', '--input_slice', type=int, default=3, help='Number of Slice for Model Input')
-    parser.add_argument('-conv', '--conv_block', type=int, default=5, help='Number of UNet Block')
-    parser.add_argument('-kernel', '--kernel_root', type=int, default=16, help='Number of the Root of Kernel')
-    parser.add_argument('-rescale', '--rescale_dim', type=int, default=256, help='Number of the Root of Kernel')
+    parser=argparse.ArgumentParser(description='Skull Stripping', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    optional=parser._action_groups.pop()
+    required=parser.add_argument_group('required arguments')
+    # Required Option
+    required.add_argument('-in', '--input_t1w', type=str, required=True, help='Input T1w Image for Skull Stripping')
+    required.add_argument('-model', '--predict_model', required=True, type=str, help='Predict Model')
+    # Optional Option
+    optional.add_argument('-out', '--out_dir', type=str, help='Output Dir')
+    optional.add_argument('-suffix', '--mask_suffix', type=str, default="pre_mask", help='Suffix of Mask')
+    optional.add_argument('-slice', '--input_slice', type=int, default=3, help='Number of Slice for Model Input')
+    optional.add_argument('-conv', '--conv_block', type=int, default=5, help='Number of UNet Block')
+    optional.add_argument('-kernel', '--kernel_root', type=int, default=16, help='Number of the Root of Kernel')
+    optional.add_argument('-rescale', '--rescale_dim', type=int, default=256, help='Number of the Root of Kernel')
+    parser._action_groups.append(optional)
     if len(sys.argv)==1:
         parser.print_help()
         sys.exit(1)

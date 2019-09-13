@@ -15,15 +15,20 @@ import argparse
 if __name__=='__main__':
     NoneType=type(None)
     # Argument
-    parser = argparse.ArgumentParser(description='Test')
-    parser.add_argument('-tet1w', '--test_t1w', type=str, required=True, help='Test T1w Directory')
-    parser.add_argument('-temsk', '--test_msk', type=str, required=True, help='Test Mask Directory')
-    parser.add_argument('-out', '--out_dir', type=str, required=True, help='Output Directory')
-    parser.add_argument('-model', '--test_model', type=str, help='Test Model')
-    parser.add_argument('-slice', '--input_slice', type=int, default=3, help='Number of Slice for Model Input')
-    parser.add_argument('-conv', '--conv_block', type=int, default=5, help='Number of UNet Block')
-    parser.add_argument('-kernel', '--kernel_root', type=int, default=16, help='Number of the Root of Kernel')
-    parser.add_argument('-rescale', '--rescale_dim', type=int, default=256, help='Number of the Root of Kernel')
+    parser = argparse.ArgumentParser(description='Test', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    optional=parser._action_groups.pop()
+    required=parser.add_argument_group('required arguments')
+    # Required Option
+    required.add_argument('-tet1w', '--test_t1w', type=str, required=True, help='Test T1w Directory')
+    required.add_argument('-temsk', '--test_msk', type=str, required=True, help='Test Mask Directory')
+    required.add_argument('-out', '--out_dir', type=str, required=True, help='Output Directory')
+    required.add_argument('-model', '--test_model', type=str, required=True, help='Test Model')
+    # Optional Option
+    optional.add_argument('-slice', '--input_slice', type=int, default=3, help='Number of Slice for Model Input')
+    optional.add_argument('-conv', '--conv_block', type=int, default=5, help='Number of UNet Block')
+    optional.add_argument('-kernel', '--kernel_root', type=int, default=16, help='Number of the Root of Kernel')
+    optional.add_argument('-rescale', '--rescale_dim', type=int, default=256, help='Number of the Root of Kernel')
+    parser._action_groups.append(optional)
     if len(sys.argv)==1:
         parser.print_help()
         sys.exit(1)

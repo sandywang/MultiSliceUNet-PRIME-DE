@@ -16,19 +16,24 @@ import numpy as np
 if __name__=='__main__':
     NoneType=type(None)
     # Argument
-    parser = argparse.ArgumentParser(description='Train')
-    parser.add_argument('-trt1w', '--train_t1w', type=str, required=True, help='Train T1w Directory')
-    parser.add_argument('-trmsk', '--train_msk', type=str, required=True, help='Train Mask Directory')
-    parser.add_argument('-vt1w', '--validate_t1w', type=str, help='Validation T1w Directory')
-    parser.add_argument('-vmsk', '--validate_msk', type=str, help='Validation Mask Directory')
-    parser.add_argument('-out', '--out_dir', type=str, required=True, help='Output Directory')
-    parser.add_argument('-init', '--init_model', type=str, help='Init Model')
-    parser.add_argument('-slice', '--input_slice', type=int, default=3, help='Number of Slice for Model Input')
-    parser.add_argument('-conv', '--conv_block', type=int, default=5, help='Number of UNet Block')
-    parser.add_argument('-rescale', '--rescale_dim', type=int, default=256, help='Number of the Root of Kernel')
-    parser.add_argument('-kernel', '--kernel_root', type=int, default=16, help='Number of the Root of Kernel')
-    parser.add_argument('-epoch', '--num_epoch', type=int, default=40, help='Number of Epoch')
-    parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001, help='Number of Epoch')
+    parser = argparse.ArgumentParser(description='Train', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    optional=parser._action_groups.pop()
+    required=parser.add_argument_group('required arguments')
+    # Required Option
+    required.add_argument('-trt1w', '--train_t1w', type=str, required=True, help='Train T1w Directory')
+    required.add_argument('-trmsk', '--train_msk', type=str, required=True, help='Train Mask Directory')
+    required.add_argument('-out', '--out_dir', type=str, required=True, help='Output Directory')
+    # Optional Option
+    optional.add_argument('-vt1w', '--validate_t1w', type=str, help='Validation T1w Directory')
+    optional.add_argument('-vmsk', '--validate_msk', type=str, help='Validation Mask Directory')
+    optional.add_argument('-init', '--init_model', type=str, help='Init Model')
+    optional.add_argument('-slice', '--input_slice', type=int, default=3, help='Number of Slice for Model Input')
+    optional.add_argument('-conv', '--conv_block', type=int, default=5, help='Number of UNet Block')
+    optional.add_argument('-rescale', '--rescale_dim', type=int, default=256, help='Number of the Root of Kernel')
+    optional.add_argument('-kernel', '--kernel_root', type=int, default=16, help='Number of the Root of Kernel')
+    optional.add_argument('-epoch', '--num_epoch', type=int, default=40, help='Number of Epoch')
+    optional.add_argument('-lr', '--learning_rate', type=float, default=0.0001, help='Number of Epoch')
+    parser._action_groups.append(optional)
 
     if len(sys.argv)==1:
         parser.print_help()
