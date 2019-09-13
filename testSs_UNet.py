@@ -8,7 +8,6 @@ from dataset import VolumeDataset, BlockDataset
 from torch.utils.data import DataLoader
 from model import MultiSliceBcUNet, MultiSliceSsUNet, MultiSliceModel, UNet2d
 from function import predict_volumes
-import matplotlib.pyplot as plt
 import os, sys, pickle
 import nibabel as nib
 import argparse

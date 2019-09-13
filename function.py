@@ -5,8 +5,7 @@ import scipy.ndimage as snd
 from torch.autograd import Variable
 from dataset import VolumeDataset, BlockDataset
 from torch.utils.data import DataLoader
-from model import MultiSliceBcUNet, MultiSliceSsUNet, MultiSliceModel, UNet2d
-import matplotlib.pyplot as plt
+from model import UNet2d
 import os, sys
 import nibabel as nib
 import pickle
@@ -38,7 +37,7 @@ def extract_large_comp(prt_msk):
 
     return prt_msk
 
-def predict_volumes(model, rimg_in=None, cimg_in=None, bmsk_in=None, 
+def predict_volumes(model, rimg_in=None, cimg_in=None, bmsk_in=None, suffix="pre_mask",
         save_dice=False, save_nii=False, nii_outdir=None, verbose=False, 
         rescale_dim=256, num_slice=3):
     use_gpu=torch.cuda.is_available()
@@ -64,20 +63,24 @@ def predict_volumes(model, rimg_in=None, cimg_in=None, bmsk_in=None,
     
     for idx, vol in enumerate(volume_loader):
         if len(vol)==1: # just img
-            cimg=vol[0]
+            ptype=1 # Predict
+            cimg=vol
+            bmsk=None
             block_dataset=BlockDataset(rimg=cimg, bfld=None, bmsk=None, num_slice=num_slice, rescale_dim=rescale_dim)
         elif len(vol)==2: # img & msk
+            ptype=2 # image test
             cimg=vol[0]
             bmsk=vol[1]
             block_dataset=BlockDataset(rimg=cimg, bfld=None, bmsk=bmsk, num_slice=num_slice, rescale_dim=rescale_dim)
         elif len(vol==3): # img bias_field & msk
+            ptype=3 # image bias correction test
             cimg=vol[0]
             bfld=vol[1]
             bmsk=vol[2]
             block_dataset=BlockDataset(rimg=cimg, bfld=bfld, bmsk=bmsk, num_slice=num_slice, rescale_dim=rescale_dim)
         else:
             print("Invalid Volume Dataset!")
-            sys.exit(1)
+            sys.exit(2)
         
         rescale_shape=block_dataset.get_rescale_shape()
         raw_shape=block_dataset.get_raw_shape()
@@ -91,11 +94,22 @@ def predict_volumes(model, rimg_in=None, cimg_in=None, bmsk_in=None,
             if use_gpu:
                 pr_bmsk=pr_bmsk.cuda()
             for (i, ind) in enumerate(slice_list):
-                cimg_blk, bmsk_blk=block_data[i]
-                if use_gpu:
-                    cimg_blk=cimg_blk.cuda()
-                    bmsk_blk=bmsk_blk.cuda()
-                pr_bmsk_blk=model(torch.unsqueeze(Variable(cimg_blk), 0))
+                if ptype==1:
+                    rimg_blk=block_data[i]
+                    if use_gpu:
+                        rimg_blk=rimg_blk.cuda()
+                elif ptype==2:
+                    rimg_blk, bmsk_blk=block_data[i]
+                    if use_gpu:
+                        rimg_blk=rimg_blk.cuda()
+                        bmsk_blk=bmsk_blk.cuda()
+                else:
+                    rimg_blk, bfld_blk, bmsk_blk=block_data[i]
+                    if use_gpu:
+                        rimg_blk=rimg_blk.cuda()
+                        bfld_blk=bfld_blk.cuda()
+                        bmsk_blk=bmsk_blk.cuda()
+                pr_bmsk_blk=model(torch.unsqueeze(Variable(rimg_blk), 0))
                 pr_bmsk[ind[1], :, :]=pr_bmsk_blk.data[0][1, :, :]
             
             if use_gpu:
@@ -139,7 +153,7 @@ def predict_volumes(model, rimg_in=None, cimg_in=None, bmsk_in=None,
             
             if not os.path.exists(nii_outdir):
                 os.mkdir(nii_outdir)
-            out_path=os.path.join(nii_outdir, t1w_name+"_pre_mask.nii.gz")
+            out_path=os.path.join(nii_outdir, t1w_name+"_"+suffix+".nii.gz")
             write_nifti(np.array(pr_bmsk_final, dtype=np.float32), t1w_aff, t1w_shape, out_path)
 
         if save_dice:
