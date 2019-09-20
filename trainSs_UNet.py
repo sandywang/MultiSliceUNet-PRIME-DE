@@ -40,7 +40,7 @@ if __name__=='__main__':
         sys.exit(1)
     args = parser.parse_args()
     
-    if not os.path.exists(args.test_msk) or not os.path.exists(args.test_t1w):
+    if not os.path.exists(args.train_msk) or not os.path.exists(args.train_t1w):
         print("Invalid train directory, please check again!")
         sys.exit(2)
 
