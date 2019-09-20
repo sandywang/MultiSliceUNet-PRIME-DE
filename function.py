@@ -149,7 +149,7 @@ def predict_volumes(model, rimg_in=None, cimg_in=None, bmsk_in=None, suffix="pre
             t1w_shape=t1w_nii.shape
 
             if isinstance(nii_outdir, NoneType):
-                nii_outdir=t1w_path
+                nii_outdir=t1w_dir
             
             if not os.path.exists(nii_outdir):
                 os.mkdir(nii_outdir)
