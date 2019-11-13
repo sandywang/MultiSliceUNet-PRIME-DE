@@ -22,6 +22,8 @@ def write_nifti(data, aff, shape, out_path):
     img=nib.Nifti1Image(data, aff)
     img.to_filename(out_path)
 
+def rotate_volume(vol): pass
+
 def estimate_dice(gt_msk, prt_msk):
     intersection=gt_msk*prt_msk
     dice=2*float(intersection.sum())/float(gt_msk.sum()+prt_msk.sum())
