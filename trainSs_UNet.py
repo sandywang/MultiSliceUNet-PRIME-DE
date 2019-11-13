@@ -124,6 +124,7 @@ if __name__=='__main__':
                     )
                 )
         loss=np.array(lossSs_v).sum()
+        loss_list.append(loss)
     
         if use_validate:
             valid_model=nn.Sequential(model, nn.Softmax2d())
